@@ -593,6 +593,7 @@ void QWindowsTheme::refreshFonts()
     clearFonts();
     if (!QGuiApplication::desktopSettingsAware())
         return;
+	const int dpi = 96;
     NONCLIENTMETRICS ncm;
     auto &screenManager = QWindowsContext::instance()->screenManager();
     QWindowsContext::nonClientMetricsForScreen(&ncm, screenManager.screens().value(0));
@@ -605,8 +606,14 @@ void QWindowsTheme::refreshFonts()
     fixedFont.setStyleHint(QFont::TypeWriter);
 
     LOGFONT lfIconTitleFont;
-    SystemParametersInfo(SPI_GETICONTITLELOGFONT, sizeof(lfIconTitleFont), &lfIconTitleFont, 0);
-    const QFont iconTitleFont = QWindowsFontDatabase::LOGFONT_to_QFont(lfIconTitleFont);
+    QFont iconTitleFont;
+    if (QWindowsContext::user32dll.systemParametersInfoForDpi) {
+        QWindowsContext::user32dll.systemParametersInfoForDpi(SPI_GETICONTITLELOGFONT, sizeof(lfIconTitleFont), &lfIconTitleFont, 0, dpi);
+        iconTitleFont = QWindowsFontDatabase::LOGFONT_to_QFont(lfIconTitleFont, dpi);
+    } else {
+        SystemParametersInfo(SPI_GETICONTITLELOGFONT, sizeof(lfIconTitleFont), &lfIconTitleFont, 0);
+        iconTitleFont = QWindowsFontDatabase::LOGFONT_to_QFont(lfIconTitleFont);
+    }
 
     m_fonts[SystemFont] = new QFont(QWindowsFontDatabase::systemDefaultFont());
     m_fonts[MenuFont] = new QFont(menuFont);

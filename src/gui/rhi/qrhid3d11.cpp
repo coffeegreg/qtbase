@@ -1,4 +1,4 @@
-/****************************************************************************
+﻿/****************************************************************************
 **
 ** Copyright (C) 2019 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
@@ -197,7 +197,7 @@ bool QRhiD3D11::create(QRhi::Flags flags)
     if (debugLayer)
         devFlags |= D3D11_CREATE_DEVICE_DEBUG;
 
-    dxgiFactory = createDXGIFactory2();
+    dxgiFactory = nullptr;
     if (dxgiFactory != nullptr) {
         hasDxgi2 = true;
         supportsFlipDiscardSwapchain = !qEnvironmentVariableIntValue("QT_D3D_NO_FLIP");
@@ -4434,7 +4434,7 @@ bool QD3D11SwapChain::createOrResize()
     const UINT swapChainFlags = 0;
 
     QRHI_RES_RHI(QRhiD3D11);
-    bool useFlipDiscard = rhiD->hasDxgi2 && rhiD->supportsFlipDiscardSwapchain;
+    bool useFlipDiscard = rhiD->supportsFlipDiscardSwapchain;
     if (!swapChain) {
         HWND hwnd = reinterpret_cast<HWND>(window->winId());
         sampleDesc = rhiD->effectiveSampleCount(m_sampleCount);
